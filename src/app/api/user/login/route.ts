@@ -3,15 +3,21 @@ import sleep from "sleep-promise";
 
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { getPrisma } from "@lib/getPrisma";
 
 export const POST = async (request: NextRequest) => {
   const body = await request.json();
   const { username, password } = body;
+  const prisma = getPrisma();
 
   // Get user from "real database"
-  const user = null;
+  //retunr a user object or null if not found
+  const user = await prisma.user.findFirst({ 
+    where : { username: username}
+  });
 
-  if (!user) {
+  //if user not found and password is incorrect
+  if (!user || !bcrypt.compareSync(password,user.password )) {
     return NextResponse.json(
       {
         ok: false,

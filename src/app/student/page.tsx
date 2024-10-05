@@ -18,12 +18,13 @@ import { useStore } from "@nanostores/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
+//import { Enrollment } from "@prisma/client";
 
 export default function StudentPage() {
   const [myEnrollments, setMyEnrollments] = useState<Course[] | null>(null);
   const [loadingMyEnrollments, setLoadingMyEnrollments] = useState(false);
 
-  const [loadingEnrolling, setLoadingEnrolling] = useState(false);
+  //const [loadingEnrolling, setLoadingEnrolling] = useState(false);
   const [loadingDropping, setLoadingDropping] = useState("");
   const [courseNo, setCourseNo] = useState("");
   const router = useRouter();
@@ -52,15 +53,7 @@ export default function StudentPage() {
 
   const callEnrollApi = async () => {
     try {
-      const resp = await axios.post(
-        "/api/enrollments",
-        {
-          courseNo,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+
       setCourseNo("");
       loadMyCourses();
     } catch (error) {
@@ -82,12 +75,7 @@ export default function StudentPage() {
   const callDropApi = async (drop_courseNo: string) => {
     setLoadingDropping(drop_courseNo);
     try {
-      const resp = await axios.delete("/api/enrollments", {
-        data: {
-          courseNo: drop_courseNo,
-        },
-        headers: { Authorization: `Bearer ${token}` },
-      });
+
       loadMyCourses();
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -107,7 +95,7 @@ export default function StudentPage() {
     <Stack>
       <Paper withBorder p="md">
         <Group>
-          <Title order={4}>Hi,</Title>
+          <Title order={4}>Hi,{authenUsername}</Title>
           <Button color="red" onClick={logout}>
             Logout
           </Button>
@@ -117,16 +105,16 @@ export default function StudentPage() {
         <Title order={4}>My Course(s)</Title>
 
         {myEnrollments &&
-          myEnrollments.map((course: Course) => (
-            <Group my="xs" key={course.courseNo}>
+          myEnrollments.map((enroll: any) => (
+            <Group my="xs" key={enroll.courseNo}>
               <Text>
-                {course.courseNo} - {course.title}
+                {enroll.courseNo} - {enroll.course.title}
               </Text>
               <Button
                 color="red"
                 size="xs"
-                onClick={() => callDropApi(course.courseNo)}
-                loading={course.courseNo === loadingDropping}
+                onClick={() => callDropApi(enroll.courseNo)}
+                loading={enroll.courseNo === loadingDropping}
               >
                 Drop
               </Button>
